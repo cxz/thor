@@ -16,12 +16,13 @@ cli.usage('[options] ws://localhost')
    .option('-A, --amount <connections>', 'the amount of persistent connections to generate', parseInt, 10000)
    .option('-C, --concurrent <connections>', 'how many concurrent-connections per second', parseInt, 0)
    .option('-M, --messages <messages>', 'messages to be send per connection', parseInt, 1)
-   .option('-P, --protocol <protocol>', 'WebSocket protocol version', parseInt, 13)
+   //.option('-P, --protocol <protocol>', 'WebSocket protocol version', parseInt, 13)
    .option('-B, --buffer <size>', 'size of the messages that are send', parseInt, 1024)
    .option('-W, --workers <cpus>', 'workers to be spawned', parseInt, os.cpus().length)
-   .option('-G, --generator <file>', 'custom message generators')
-   .option('-M, --masked', 'send the messaged with a mask')
-   .option('-b, --binary', 'send binary messages instead of utf-8')
+   //.option('-G, --generator <file>', 'custom message generators')
+   //.option('-M, --masked', 'send the messaged with a mask')
+   //.option('-b, --binary', 'send binary messages instead of utf-8')
+   .option('-K, --pusher_app_key <pusher_app_key>', 'Pusher APP_KEY')
    .version(require('../package.json').version)
    .parse(process.argv);
 
@@ -48,15 +49,16 @@ var cluster = require('cluster')
   , robin = [];
 
 cluster.setupMaster({
-    exec: path.resolve(__dirname, '../mjolnir.js')
+    exec: path.resolve(__dirname, '../mjolnir2.js')
   , silent: false
   , args: [
-      cli.generator
-      ? path.resolve(process.cwd(), cli.generator)
-      : path.resolve(__dirname, '../generator.js'),
-      cli.protocol,
-      !!cli.masked,
-      !!cli.binary
+      cli.pusher_app_key
+      //cli.generator
+      //? path.resolve(process.cwd(), cli.generator)
+      //: path.resolve(__dirname, '../generator.js'),
+      //cli.protocol,
+      //!!cli.masked,
+      //!!cli.binary
     ]
 });
 
@@ -121,7 +123,8 @@ function live() {
 
     process.stdout.write('\r'+ frames[i++ % len] +' Progress :: '.white + [
       'Created '.white + connections.toString().green,
-      'Active '.white + active.toString().green
+      'Active '.white + active.toString().green,
+      'Messages Rcvd '.white + received.toString().green
     ].join(', '));
   }, interval);
 }
